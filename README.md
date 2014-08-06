@@ -1,6 +1,8 @@
 Ooh, shiny!
 ===========
 
+[![Build Status](https://travis-ci.org/farcaller/shiny.svg)](https://travis-ci.org/farcaller/shiny)
+
 Shiny makes you less distracted with copying over initializarion code in test cases. It also has a fancy syntax similar to ruby's rspec or Objective-C's kiwi.
 
 Installation
