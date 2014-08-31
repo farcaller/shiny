@@ -38,7 +38,7 @@ pub fn plugin_registrar(reg: &mut Registry) {
     reg.register_macro("describe", macro_describe);
 }
 
-pub fn macro_describe(cx: &mut ExtCtxt, _: Span, tts: &[ast::TokenTree]) -> Box<MacResult> {
+pub fn macro_describe(cx: &mut ExtCtxt, _: Span, tts: &[ast::TokenTree]) -> Box<MacResult+'static> {
     let sess = cx.parse_sess();
     let ttsvec = tts.iter().map(|x| (*x).clone()).collect();
 
@@ -117,7 +117,7 @@ pub struct MacItems {
 }
 
 impl MacItems {
-    pub fn new(items: Vec<Gc<ast::Item>>) -> Box<MacResult> {
+    pub fn new(items: Vec<Gc<ast::Item>>) -> Box<MacResult+'static> {
         box MacItems { items: items } as Box<MacResult>
     }
 }

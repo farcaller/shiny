@@ -4,7 +4,7 @@ name = "shiny"
 version = "0.1.0"
 authors = ["Vladimir Pouzanov <farcaller@gmail.com>"]
 
-[[lib]]
+[lib]
 
 name = "shiny"
 path = "src/lib.rs"
