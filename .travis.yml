@@ -1,8 +1,4 @@
-env:
-  global:
-    - LD_LIBRARY_PATH=/usr/local/lib
-install:
-  - curl http://www.rust-lang.org/rustup.sh | sudo sh -
+language: rust
 script:
   - cargo build
   - cargo test
