@@ -21,8 +21,8 @@ extern crate rustc;
 extern crate syntax;
 
 use rustc::plugin::Registry;
-use std::gc::{Gc, GC};
 use syntax::abi;
+use syntax::ptr::P;
 use syntax::ast;
 use syntax::ast_util::empty_generics;
 use syntax::codemap::DUMMY_SP;
@@ -76,24 +76,23 @@ pub fn macro_describe(cx: &mut ExtCtxt, _: Span, tts: &[ast::TokenTree]) -> Box<
 
     let mut funcs = vec!();
 
-    for &(ref name, block) in test_blocks.iter() {
-        let body = if before_block.is_none() {
-            block
-        } else {
-            let before = before_block.unwrap();
+    for &(ref name, ref block) in test_blocks.iter() {
+        let body = match before_block {
+            None => block.clone(),
+            Some(ref before) => {
+                P(ast::Block {
+                    view_items: before.view_items + block.view_items,
+                    stmts: before.stmts + block.stmts,
 
-            box(GC) ast::Block {
-                view_items: before.view_items + block.view_items,
-                stmts: before.stmts + block.stmts,
-
-                ..block.deref().clone()
+                    ..block.deref().clone()
+                })
             }
         };
 
         let attr_test = cx.attribute(DUMMY_SP,
             cx.meta_word(DUMMY_SP, token::InternedString::new("test")));
 
-        let func = box(GC) ast::Item {
+        let func = P(ast::Item {
             ident: cx.ident_of(name.replace(" ", "_").as_slice()),
             attrs: vec!(attr_test),
             id: ast::DUMMY_NODE_ID,
@@ -105,7 +104,7 @@ pub fn macro_describe(cx: &mut ExtCtxt, _: Span, tts: &[ast::TokenTree]) -> Box<
                 body),
             vis: ast::Inherited,
             span: DUMMY_SP,
-        };
+        });
         funcs.push(func);
     }
 
@@ -113,17 +112,17 @@ pub fn macro_describe(cx: &mut ExtCtxt, _: Span, tts: &[ast::TokenTree]) -> Box<
 }
 
 pub struct MacItems {
-    items: Vec<Gc<ast::Item>>
+    items: Vec<P<ast::Item>>
 }
 
 impl MacItems {
-    pub fn new(items: Vec<Gc<ast::Item>>) -> Box<MacResult+'static> {
+    pub fn new(items: Vec<P<ast::Item>>) -> Box<MacResult+'static> {
         box MacItems { items: items } as Box<MacResult>
     }
 }
 
 impl MacResult for MacItems {
-    fn make_items(&self) -> Option<SmallVector<Gc<ast::Item>>> {
+    fn make_items(self: Box<MacItems>) -> Option<SmallVector<P<ast::Item>>> {
         Some(SmallVector::many(self.items.clone()))
     }
 }
