@@ -56,7 +56,7 @@ pub fn macro_describe(cx: &mut ExtCtxt, _: Span, tts: &[ast::TokenTree]) -> Box<
         match ident.as_str() {
             "before_each" => {
                 if before_block.is_some() {
-                    fail!("only one before_each block is allowed");
+                    panic!("only one before_each block is allowed");
                 }
                 before_block = Some(parser.parse_block());
             },
