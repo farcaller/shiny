@@ -48,7 +48,7 @@ pub fn macro_describe(cx: &mut ExtCtxt, _: Span, tts: &[ast::TokenTree]) -> Box<
     let mut test_blocks = vec!();
 
     loop {
-        if parser.token == token::EOF {
+        if parser.token == token::Eof {
             break;
         }
 
