@@ -97,7 +97,7 @@ pub fn macro_describe(cx: &mut ExtCtxt, _: Span, tts: &[ast::TokenTree]) -> Box<
             attrs: vec!(attr_test),
             id: ast::DUMMY_NODE_ID,
             node: ast::ItemFn(
-                cx.fn_decl(Vec::new(), cx.ty_nil()),
+                cx.fn_decl(Vec::new(), cx.ty(DUMMY_SP, ast::Ty_::TyTup(Vec::new()))),
                 ast::NormalFn,
                 abi::Rust,
                 empty_generics(),
