@@ -76,13 +76,13 @@ pub fn macro_describe(cx: &mut ExtCtxt, _: Span, tts: &[ast::TokenTree]) -> Box<
 
     let mut funcs = vec!();
 
-    for &(ref name, ref block) in test_blocks.iter() {
+    for (name, block) in test_blocks.into_iter() {
         let body = match before_block {
             None => block.clone(),
             Some(ref before) => {
                 P(ast::Block {
-                    view_items: before.view_items + block.view_items,
-                    stmts: before.stmts + block.stmts,
+                    view_items: before.view_items.clone() + block.view_items.as_slice(),
+                    stmts: before.stmts.clone() + block.stmts.as_slice(),
 
                     ..block.deref().clone()
                 })
