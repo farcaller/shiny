@@ -18,5 +18,5 @@ mod test {
       let still_awesome = awesome;
       assert!(still_awesome);
     }
-  )
+  );
 }
