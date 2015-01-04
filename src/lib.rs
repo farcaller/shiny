@@ -84,7 +84,7 @@ pub fn macro_describe(cx: &mut ExtCtxt, _: Span, tts: &[ast::TokenTree]) -> Box<
                     view_items: before.view_items.clone() + block.view_items.as_slice(),
                     stmts: before.stmts.clone() + block.stmts.as_slice(),
 
-                    ..block.deref().clone()
+                    ..(*block).clone()
                 })
             }
         };
