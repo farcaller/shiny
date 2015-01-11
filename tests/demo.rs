@@ -1,7 +1,7 @@
-#![feature(phase)]
+#![feature(plugin)]
 #![crate_type = "dylib"]
 
-#[cfg(test)] #[phase(plugin,link)] extern crate shiny;
+#[cfg(test)] #[plugin] #[macro_use] extern crate shiny;
 
 #[cfg(test)]
 mod test {
