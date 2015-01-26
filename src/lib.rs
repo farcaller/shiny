@@ -38,6 +38,18 @@ pub fn plugin_registrar(reg: &mut Registry) {
     reg.register_macro("describe", macro_describe);
 }
 
+fn is_item(stmt: &P<ast::Stmt>) -> bool {
+    match stmt.node {
+        ast::StmtDecl(ref decl, _) => {
+            match decl.node {
+                ast::DeclItem(_) => true,
+                _ => false,
+            }
+        },
+        _ => false,
+    }
+}
+
 pub fn macro_describe(cx: &mut ExtCtxt, _: Span, tts: &[ast::TokenTree]) -> Box<MacResult+'static> {
     let sess = cx.parse_sess();
     let ttsvec = tts.iter().map(|x| (*x).clone()).collect();
@@ -80,9 +92,9 @@ pub fn macro_describe(cx: &mut ExtCtxt, _: Span, tts: &[ast::TokenTree]) -> Box<
         let body = match before_block {
             None => block.clone(),
             Some(ref before) => {
+                let items: Vec<P<ast::Stmt>> = before.stmts.clone().into_iter().filter(is_item).collect();
                 P(ast::Block {
-                    view_items: before.view_items.clone() + block.view_items.as_slice(),
-                    stmts: before.stmts.clone() + block.stmts.as_slice(),
+                    stmts: items + before.stmts.as_slice() + block.stmts.as_slice(),
 
                     ..(*block).clone()
                 })
