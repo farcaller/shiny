@@ -75,7 +75,7 @@ pub fn macro_describe(cx: &mut ExtCtxt, _: Span, tts: &[ast::TokenTree]) -> Box<
             "it" => {
                 let (name, _) = parser.parse_str();
                 let block = parser.parse_block();
-                test_blocks.push((name.get().to_string(), block));
+                test_blocks.push((name.to_string(), block));
             }
             other => {
                 let span = parser.span;

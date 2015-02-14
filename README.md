@@ -16,8 +16,8 @@ Usage
 Add shiny crate:
 
 ```rust
-#![feature(phase)]
-#[cfg(test)] #[phase(plugin,link)] extern crate shiny;
+#![feature(plugin)]
+#![plugin(shiny)]
 ```
 
 Write your shiny test case:

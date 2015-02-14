@@ -1,7 +1,7 @@
 #![feature(plugin)]
 #![crate_type = "dylib"]
 
-#[cfg(test)] #[plugin] #[macro_use] extern crate shiny;
+#![plugin(shiny)]
 
 #[cfg(test)]
 mod test {
