@@ -15,7 +15,7 @@
 
 #![crate_name = "shiny"]
 #![crate_type = "dylib"]
-#![feature(plugin_registrar)]
+#![feature(plugin_registrar, rustc_private)]
 
 extern crate rustc;
 extern crate syntax;
