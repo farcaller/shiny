@@ -16,6 +16,7 @@
 #![crate_name = "shiny"]
 #![crate_type = "dylib"]
 #![feature(plugin_registrar, rustc_private)]
+#![feature(convert)]
 
 extern crate rustc;
 extern crate syntax;
@@ -64,8 +65,9 @@ pub fn macro_describe(cx: &mut ExtCtxt, _: Span, tts: &[ast::TokenTree]) -> Box<
             break;
         }
 
-        let ident = parser.parse_ident();
-        match ident.as_str() {
+        // TODO: Handle the failure case
+        let ident = parser.parse_ident().unwrap();
+        match format!("{}", ident).as_str() {
             "before_each" => {
                 if before_block.is_some() {
                     panic!("only one before_each block is allowed");
@@ -73,7 +75,8 @@ pub fn macro_describe(cx: &mut ExtCtxt, _: Span, tts: &[ast::TokenTree]) -> Box<
                 before_block = Some(parser.parse_block());
             },
             "it" => {
-                let (name, _) = parser.parse_str();
+                // TODO: Handle the failure case
+                let (name, _) = parser.parse_str().unwrap();
                 let block = parser.parse_block();
                 test_blocks.push((name.to_string(), block));
             }
@@ -81,7 +84,7 @@ pub fn macro_describe(cx: &mut ExtCtxt, _: Span, tts: &[ast::TokenTree]) -> Box<
                 let span = parser.span;
                 parser.span_fatal(span, format!("expected one of: {} but found `{}`",
                     "`before_each`, `it`",
-                    other).as_slice());
+                    other).as_str());
             },
         }
     }
@@ -90,14 +93,25 @@ pub fn macro_describe(cx: &mut ExtCtxt, _: Span, tts: &[ast::TokenTree]) -> Box<
 
     for (name, block) in test_blocks.into_iter() {
         let body = match before_block {
-            None => block.clone(),
+            None => block.unwrap().clone(),
             Some(ref before) => {
-                let items: Vec<P<ast::Stmt>> = before.stmts.clone().into_iter().filter(is_item).collect();
-                P(ast::Block {
-                    stmts: items + before.stmts.as_slice() + block.stmts.as_slice(),
-
-                    ..(*block).clone()
-                })
+                match before {
+                    &Ok(ref ubefore) => {
+                        // TODO: Handle the failure case
+                        let ublock = block.unwrap();
+                        let items: Vec<P<ast::Stmt>> = ubefore
+                            .stmts.clone().into_iter().filter(is_item).collect();
+                        let mut stmts = vec!();
+                        stmts.extend(items);
+                        stmts.extend(ubefore.stmts.clone());
+                        stmts.extend(ublock.stmts.clone());
+                        P(ast::Block {
+                            stmts: stmts,
+                            ..(*ublock).clone()
+                        })
+                    }
+                    &Err(_) => panic!("boom")
+                }
             }
         };
 
@@ -105,12 +119,13 @@ pub fn macro_describe(cx: &mut ExtCtxt, _: Span, tts: &[ast::TokenTree]) -> Box<
             cx.meta_word(DUMMY_SP, token::InternedString::new("test")));
 
         let func = P(ast::Item {
-            ident: cx.ident_of(name.replace(" ", "_").as_slice()),
+            ident: cx.ident_of(name.replace(" ", "_").as_str()),
             attrs: vec!(attr_test),
             id: ast::DUMMY_NODE_ID,
             node: ast::ItemFn(
                 cx.fn_decl(Vec::new(), cx.ty(DUMMY_SP, ast::Ty_::TyTup(Vec::new()))),
                 ast::Unsafety::Normal,
+                ast::Constness::NotConst,
                 abi::Rust,
                 empty_generics(),
                 body),
