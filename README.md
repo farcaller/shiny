@@ -3,17 +3,17 @@ Ooh, shiny!
 
 [![Build Status](https://travis-ci.org/farcaller/shiny.svg)](https://travis-ci.org/farcaller/shiny)
 
-Shiny makes you less distracted with copying over initializarion code in test cases. It also has a fancy syntax similar to ruby's rspec or Objective-C's kiwi.
+Shiny makes you less distracted with copying over initialization code in test cases. It also has a fancy syntax similar to Ruby's RSpec or Objective-C's Kiwi.
 
 Installation
 ------------
 
-Install in usual way with cargo.
+Install in the usual way with cargo.
 
 Usage
 -----
 
-Add shiny crate:
+Add the `shiny` crate:
 
 ```rust
 #![feature(plugin)]
@@ -41,7 +41,7 @@ mod test {
 }
 ```
 
-all the items from `before_each` are inserted as is into generated test case functions. Mind the final semicolon in `before_each block`!
+All the items from `before_each` are inserted as-is into each generated test case function. Mind the final semicolon in `before_each block`!
 
 TODO
 ----
