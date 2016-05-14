@@ -16,16 +16,15 @@
 #![crate_name = "shiny"]
 #![crate_type = "dylib"]
 #![feature(plugin_registrar, rustc_private)]
-#![feature(convert)]
 
 extern crate rustc;
 extern crate syntax;
+extern crate rustc_plugin;
 
-use rustc::plugin::Registry;
+use rustc_plugin::Registry;
 use syntax::abi;
 use syntax::ptr::P;
 use syntax::ast;
-use syntax::ast_util::empty_generics;
 use syntax::codemap::DUMMY_SP;
 use syntax::codemap::Span;
 use syntax::ext::base::{ExtCtxt, MacResult};
@@ -39,11 +38,11 @@ pub fn plugin_registrar(reg: &mut Registry) {
     reg.register_macro("describe", macro_describe);
 }
 
-fn is_item(stmt: &P<ast::Stmt>) -> bool {
+fn is_item(stmt: &ast::Stmt) -> bool {
     match stmt.node {
-        ast::StmtDecl(ref decl, _) => {
+        ast::StmtKind::Decl(ref decl, _) => {
             match decl.node {
-                ast::DeclItem(_) => true,
+                ast::DeclKind::Item(_) => true,
                 _ => false,
             }
         },
@@ -99,7 +98,7 @@ pub fn macro_describe(cx: &mut ExtCtxt, _: Span, tts: &[ast::TokenTree]) -> Box<
                     &Ok(ref ubefore) => {
                         // TODO: Handle the failure case
                         let ublock = block.unwrap();
-                        let items: Vec<P<ast::Stmt>> = ubefore
+                        let items: Vec<ast::Stmt> = ubefore
                             .stmts.clone().into_iter().filter(is_item).collect();
                         let mut stmts = vec!();
                         stmts.extend(items);
@@ -122,14 +121,14 @@ pub fn macro_describe(cx: &mut ExtCtxt, _: Span, tts: &[ast::TokenTree]) -> Box<
             ident: cx.ident_of(name.replace(" ", "_").as_str()),
             attrs: vec!(attr_test),
             id: ast::DUMMY_NODE_ID,
-            node: ast::ItemFn(
-                cx.fn_decl(Vec::new(), cx.ty(DUMMY_SP, ast::Ty_::TyTup(Vec::new()))),
+            node: ast::ItemKind::Fn(
+                cx.fn_decl(Vec::new(), cx.ty(DUMMY_SP, ast::TyKind::Tup(Vec::new()))),
                 ast::Unsafety::Normal,
                 ast::Constness::NotConst,
-                abi::Rust,
-                empty_generics(),
+                abi::Abi::Rust,
+                ast::Generics::default(),
                 body),
-            vis: ast::Inherited,
+            vis: ast::Visibility::Inherited,
             span: DUMMY_SP,
         });
         funcs.push(func);
